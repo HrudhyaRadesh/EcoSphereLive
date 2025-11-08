@@ -230,9 +230,10 @@ export class DbStorage implements IStorage {
   }
 
   async updateGlobalStats(updates: Partial<GlobalStats>): Promise<GlobalStats> {
-    const current = await this.getGlobalStats();
+    // Query database directly instead of calling getGlobalStats() to avoid circular dependency
+    const existingStats = await db.select().from(globalStats).limit(1);
     
-    if (!current) {
+    if (existingStats.length === 0) {
       const result = await db.insert(globalStats).values(updates as InsertGlobalStats).returning();
       return result[0];
     }
@@ -240,7 +241,7 @@ export class DbStorage implements IStorage {
     const result = await db
       .update(globalStats)
       .set({ ...updates, lastUpdated: new Date() })
-      .where(eq(globalStats.id, current.id))
+      .where(eq(globalStats.id, existingStats[0].id))
       .returning();
     
     return result[0];
@@ -261,13 +262,12 @@ export class DbStorage implements IStorage {
     
     const totalCo2Saved = Number(co2Result[0]?.total || 0);
     
-    // Count unique cities
-    const citiesResult = await db
-      .select({ count: sql<number>`COUNT(DISTINCT ${users.city})` })
-      .from(users)
-      .where(sql`${users.city} IS NOT NULL AND ${users.city} != ''`);
+    // Count total users (replacing previous "cities worldwide" metric)
+    const usersResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(users);
     
-    const citiesWorldwide = Number(citiesResult[0]?.count || 0);
+    const citiesWorldwide = Number(usersResult[0]?.count || 0);
     
     return await this.updateGlobalStats({
       totalActiveUsers,
