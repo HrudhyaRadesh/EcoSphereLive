@@ -21,6 +21,9 @@ declare module 'http' {
   }
 }
 
+// Trust proxy for Replit deployment (required for secure cookies behind reverse proxy)
+app.set('trust proxy', true);
+
 // Session middleware
 app.use(
   session({
