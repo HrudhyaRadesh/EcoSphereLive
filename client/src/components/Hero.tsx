@@ -21,9 +21,8 @@ export default function Hero({ onGetStarted, onLearnMore }: HeroProps) {
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-24 text-center">
         <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in-up font-[family-name:var(--font-sans)]">
-          Your Journey to a
-          <span className="block text-primary-foreground bg-primary px-4 py-2 mt-2 inline-block rounded-lg">
-            Sustainable Future
+          <span className="block text-primary-foreground bg-primary px-4 py-2 inline-block rounded-lg">
+            Code That Saves Carbon
           </span>
         </h1>
         <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
