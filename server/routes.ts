@@ -266,13 +266,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/routes/calculate", requireAuth, async (req, res) => {
     try {
       const { origin, destination, vehicleType = 'car' } = req.body;
+      
+      console.log("Received route request with vehicleType:", vehicleType, typeof vehicleType);
 
       if (!origin || !destination || !origin.lat || !origin.lng || !destination.lat || !destination.lng) {
         return res.status(400).json({ error: "Origin and destination with lat/lng are required" });
       }
 
-      // Call OSRM API for route calculation
-      const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson&steps=true`;
+      // Map vehicle types to OSRM routing profiles
+      const routingProfiles: Record<string, string> = {
+        car: 'driving',
+        electric: 'driving',
+        bus: 'driving',
+        bike: 'cycling',
+        walk: 'foot',
+      };
+
+      const profile = routingProfiles[vehicleType] || 'driving';
+
+      // Call OSRM API for route calculation with appropriate profile
+      const osrmUrl = `http://router.project-osrm.org/route/v1/${profile}/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson&steps=true`;
       
       const response = await fetch(osrmUrl);
       const data = await response.json();
@@ -295,7 +308,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         walk: 0,         // Zero emissions
       };
 
-      const emissionFactor = emissionFactors[vehicleType] || emissionFactors.car;
+      const emissionFactor = emissionFactors[vehicleType] ?? emissionFactors.car;
+      console.log(`Emission factor for ${vehicleType}:`, emissionFactor, `(from lookup: ${emissionFactors[vehicleType]})`);
       const co2Emissions = distanceKm * emissionFactor;
 
       // Calculate eco-score (0-100, higher is better)
@@ -304,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? Math.round(((maxEmissions - co2Emissions) / maxEmissions) * 100) 
         : 100;
 
-      res.json({
+      const routeResponse = {
         route: {
           geometry: route.geometry,
           distance: distanceKm,
@@ -314,7 +328,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           vehicleType: vehicleType,
         },
         waypoints: data.waypoints,
-      });
+      };
+
+      console.log(`Route calculated for ${vehicleType}: ${distanceKm.toFixed(1)} km, CO2: ${co2Emissions.toFixed(2)} kg, Eco Score: ${ecoScore}`);
+
+      res.json(routeResponse);
     } catch (error) {
       console.error("Error calculating route:", error);
       res.status(500).json({ error: "Failed to calculate route" });

@@ -71,6 +71,8 @@ export default function EcoRoutePage() {
       });
 
       const data = await response.json();
+      
+      console.log("Route calculation response:", data.route);
 
       setRouteData(data.route);
       setMapPoints({
