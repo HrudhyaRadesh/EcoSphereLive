@@ -4,10 +4,11 @@ import { useEffect, useRef } from "react";
 interface EcoMapProps {
   startPoint?: [number, number];
   endPoint?: [number, number];
+  routeGeometry?: any;
   onMapReady?: (map: any) => void;
 }
 
-export default function EcoMap({ startPoint, endPoint, onMapReady }: EcoMapProps) {
+export default function EcoMap({ startPoint, endPoint, routeGeometry, onMapReady }: EcoMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
 
@@ -70,7 +71,19 @@ export default function EcoMap({ startPoint, endPoint, onMapReady }: EcoMapProps
         .bindPopup("End Point");
     }
 
-    if (startPoint && endPoint) {
+    if (routeGeometry) {
+      // Display actual route from OSRM
+      const routeCoordinates = routeGeometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+      L.polyline(routeCoordinates, {
+        color: 'hsl(var(--primary))',
+        weight: 4,
+        opacity: 0.7,
+      }).addTo(mapInstanceRef.current);
+
+      const bounds = L.latLngBounds(routeCoordinates);
+      mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
+    } else if (startPoint && endPoint) {
+      // Fallback: straight line if no route geometry
       L.polyline([startPoint, endPoint], {
         color: 'hsl(var(--primary))',
         weight: 4,
@@ -80,7 +93,7 @@ export default function EcoMap({ startPoint, endPoint, onMapReady }: EcoMapProps
       const bounds = L.latLngBounds([startPoint, endPoint]);
       mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
     }
-  }, [startPoint, endPoint]);
+  }, [startPoint, endPoint, routeGeometry]);
 
   return (
     <Card className="overflow-hidden" data-testid="map-eco-route">

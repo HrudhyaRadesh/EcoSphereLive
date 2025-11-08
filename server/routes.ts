@@ -262,6 +262,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Calculate eco-friendly route using OSRM (OpenStreetMap)
+  app.post("/api/routes/calculate", requireAuth, async (req, res) => {
+    try {
+      const { origin, destination, vehicleType = 'car' } = req.body;
+
+      if (!origin || !destination || !origin.lat || !origin.lng || !destination.lat || !destination.lng) {
+        return res.status(400).json({ error: "Origin and destination with lat/lng are required" });
+      }
+
+      // Call OSRM API for route calculation
+      const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson&steps=true`;
+      
+      const response = await fetch(osrmUrl);
+      const data = await response.json();
+
+      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+        return res.status(400).json({ error: "Could not calculate route" });
+      }
+
+      const route = data.routes[0];
+      const distanceKm = route.distance / 1000; // Convert meters to km
+      const durationMin = route.duration / 60; // Convert seconds to minutes
+
+      // Calculate CO2 emissions based on vehicle type and distance
+      // Average emissions in kg CO2 per km
+      const emissionFactors: Record<string, number> = {
+        car: 0.192,      // Average car
+        electric: 0.053, // Electric vehicle
+        bus: 0.089,      // Public bus per passenger
+        bike: 0,         // Zero emissions
+        walk: 0,         // Zero emissions
+      };
+
+      const emissionFactor = emissionFactors[vehicleType] || emissionFactors.car;
+      const co2Emissions = distanceKm * emissionFactor;
+
+      // Calculate eco-score (0-100, higher is better)
+      const maxEmissions = distanceKm * emissionFactors.car;
+      const ecoScore = maxEmissions > 0 
+        ? Math.round(((maxEmissions - co2Emissions) / maxEmissions) * 100) 
+        : 100;
+
+      res.json({
+        route: {
+          geometry: route.geometry,
+          distance: distanceKm,
+          duration: durationMin,
+          co2Emissions: co2Emissions,
+          ecoScore: ecoScore,
+          vehicleType: vehicleType,
+        },
+        waypoints: data.waypoints,
+      });
+    } catch (error) {
+      console.error("Error calculating route:", error);
+      res.status(500).json({ error: "Failed to calculate route" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
