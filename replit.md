@@ -37,7 +37,7 @@ Preferred communication style: Simple, everyday language.
 
 **Express Server**: Node.js server using ES modules with TypeScript. The server setup includes session middleware, JSON parsing, and custom logging.
 
-**Session Management**: Uses `express-session` with an in-memory store (`memorystore`). Sessions persist for 7 days with HTTP-only cookies. In production, cookies use the `secure` flag.
+**Session Management**: Uses `express-session` with an in-memory store (`memorystore`). Sessions persist for 7 days with HTTP-only cookies. In production, cookies use the `secure` flag. Express is configured with `app.set('trust proxy', true)` to properly recognize HTTPS connections behind Replit's reverse proxy, ensuring secure cookies work correctly in production deployments.
 
 **Authentication**: Password hashing uses Node's `scrypt` with random salts. Passwords are stored as `hash.salt` format. Timing-safe comparison prevents timing attacks during login.
 
