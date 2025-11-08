@@ -3,9 +3,24 @@ import AuthNavbar from "@/components/AuthNavbar";
 import { BarChart3, Map, Sparkles, Building2, Trophy, TrendingDown } from "lucide-react";
 import { Link } from "wouter";
 import { getCurrentUser } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
+
+interface UserMetrics {
+  greenPoints: number;
+  co2Saved: number;
+  daysActive: number;
+  rank: number;
+  level: number;
+}
 
 export default function DashboardPage() {
-  const user = getCurrentUser();
+  const { data: metrics } = useQuery<UserMetrics>({
+    queryKey: ["/api/user/metrics"],
+  });
+
+  const { data: monthActivities } = useQuery<any[]>({
+    queryKey: ["/api/user/activities/month"],
+  });
 
   const modules = [
     {
@@ -57,7 +72,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
-            Welcome back, {user?.username || 'Eco Warrior'}!
+            Welcome back, Eco Warrior!
           </h1>
           <p className="text-muted-foreground text-lg">
             Choose a module below to continue your sustainability journey
@@ -78,8 +93,12 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">--</div>
-              <p className="text-sm text-muted-foreground mt-1">Start tracking to see your impact</p>
+              <div className="text-3xl font-bold text-primary" data-testid="text-co2-impact">
+                {metrics ? `${metrics.co2Saved.toFixed(1)} kg` : "--"}
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                {metrics && metrics.co2Saved > 0 ? "Keep up the great work!" : "Start tracking to see your impact"}
+              </p>
             </CardContent>
           </Card>
 
@@ -91,13 +110,17 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <CardTitle className="text-lg">Green Points</CardTitle>
-                  <CardDescription>Your Rank</CardDescription>
+                  <CardDescription>Your Rank #{metrics?.rank || "--"}</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">--</div>
-              <p className="text-sm text-muted-foreground mt-1">Complete activities to earn points</p>
+              <div className="text-3xl font-bold text-primary" data-testid="text-green-points">
+                {metrics ? metrics.greenPoints.toLocaleString() : "--"}
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                {metrics && metrics.greenPoints > 0 ? `Level ${metrics.level}` : "Complete activities to earn points"}
+              </p>
             </CardContent>
           </Card>
 
@@ -109,13 +132,17 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <CardTitle className="text-lg">This Month</CardTitle>
-                  <CardDescription>Days Active</CardDescription>
+                  <CardDescription>Activities</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary">--</div>
-              <p className="text-sm text-muted-foreground mt-1">Track daily to increase streak</p>
+              <div className="text-3xl font-bold text-primary" data-testid="text-month-activities">
+                {monthActivities ? monthActivities.length : "--"}
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                {monthActivities && monthActivities.length > 0 ? `${metrics?.daysActive || 0} days active` : "Track daily to increase streak"}
+              </p>
             </CardContent>
           </Card>
         </div>

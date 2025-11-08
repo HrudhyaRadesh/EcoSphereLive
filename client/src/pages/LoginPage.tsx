@@ -4,34 +4,46 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Leaf, Mail, Lock, User, ArrowLeft } from "lucide-react";
+import { Leaf, Lock, User, ArrowLeft, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { login, register } from "@/lib/auth";
 
 export default function LoginPage() {
   const { toast } = useToast();
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [city, setCity] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    if (isLogin) {
-      localStorage.setItem('user', JSON.stringify({ email, username: email.split('@')[0] }));
-      toast({
-        title: "Welcome back!",
-        description: "Successfully logged in to EcoSphere AI.",
-      });
+    try {
+      if (isLogin) {
+        await login(username, password);
+        toast({
+          title: "Welcome back!",
+          description: "Successfully logged in to EcoSphere AI.",
+        });
+      } else {
+        await register(username, password, city || undefined);
+        toast({
+          title: "Account created!",
+          description: "Welcome to EcoSphere AI. Start your eco journey now!",
+        });
+      }
       window.location.href = '/dashboard';
-    } else {
-      localStorage.setItem('user', JSON.stringify({ email, username }));
+    } catch (error) {
       toast({
-        title: "Account created!",
-        description: "Welcome to EcoSphere AI. Start your eco journey now!",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Authentication failed",
+        variant: "destructive",
       });
-      window.location.href = '/dashboard';
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,40 +81,38 @@ export default function LoginPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="username"
-                        placeholder="Choose a username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        className="pl-10"
-                        data-testid="input-username"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
-                
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="username"
+                      placeholder="Enter your username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="pl-10"
-                      data-testid="input-email"
+                      data-testid="input-username"
                       required
                     />
                   </div>
                 </div>
+
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="city">City (optional)</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="city"
+                        placeholder="Enter your city"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="pl-10"
+                        data-testid="input-city"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
@@ -125,39 +135,10 @@ export default function LoginPage() {
                   type="submit" 
                   className="w-full"
                   data-testid="button-submit"
+                  disabled={isLoading}
                 >
-                  {isLogin ? "Sign In" : "Create Account"}
+                  {isLoading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
                 </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    data-testid="button-google"
-                    onClick={() => toast({ title: "Coming soon!", description: "Google login will be available soon." })}
-                  >
-                    Google
-                  </Button>
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    data-testid="button-github"
-                    onClick={() => toast({ title: "Coming soon!", description: "GitHub login will be available soon." })}
-                  >
-                    GitHub
-                  </Button>
-                </div>
 
                 <div className="text-center text-sm">
                   <button
@@ -186,20 +167,6 @@ export default function LoginPage() {
               Track your carbon footprint, discover eco-friendly routes, and get AI-powered recommendations 
               to live more sustainably every day.
             </p>
-            <div className="grid grid-cols-3 gap-4 pt-6">
-              <div>
-                <div className="text-3xl font-bold text-primary">50K+</div>
-                <div className="text-sm text-muted-foreground">Users</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">2.5M</div>
-                <div className="text-sm text-muted-foreground">CO₂ Saved</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">120+</div>
-                <div className="text-sm text-muted-foreground">Cities</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

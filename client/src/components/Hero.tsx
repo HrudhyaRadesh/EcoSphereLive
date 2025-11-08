@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Leaf, Users, TrendingDown } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 import heroImage from '@assets/generated_images/Sustainable_city_hero_image_f882d23b.png'
+import GlobalStatsDisplay from "./GlobalStatsDisplay"
 
 interface HeroProps {
   onGetStarted?: () => void;
@@ -51,23 +51,7 @@ export default function Hero({ onGetStarted, onLearnMore }: HeroProps) {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 p-6">
-            <Users className="h-8 w-8 text-primary-foreground mb-3 mx-auto" />
-            <div className="text-3xl font-bold text-white mb-1">50K+</div>
-            <div className="text-sm text-white/80">Active Users</div>
-          </Card>
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 p-6">
-            <TrendingDown className="h-8 w-8 text-primary-foreground mb-3 mx-auto" />
-            <div className="text-3xl font-bold text-white mb-1">2.5M</div>
-            <div className="text-sm text-white/80">Tons CO₂ Saved</div>
-          </Card>
-          <Card className="bg-white/10 backdrop-blur-md border-white/20 p-6">
-            <Leaf className="h-8 w-8 text-primary-foreground mb-3 mx-auto" />
-            <div className="text-3xl font-bold text-white mb-1">120+</div>
-            <div className="text-sm text-white/80">Cities Worldwide</div>
-          </Card>
-        </div>
+        <GlobalStatsDisplay />
       </div>
     </div>
   );
