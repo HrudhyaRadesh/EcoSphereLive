@@ -47,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: validationError.message });
       }
 
-      const { username, password, city } = validation.data;
+      const { username, password, email } = validation.data;
 
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(username);
@@ -60,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser({
         username,
         password: hashedPassword,
-        city: city || null,
+        email: email || null,
       });
 
       // Set session
@@ -69,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         id: user.id,
         username: user.username,
-        city: user.city,
+        email: user.email,
       });
     } catch (error) {
       console.error("Error registering user:", error);
@@ -102,7 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         id: user.id,
         username: user.username,
-        city: user.city,
+        email: user.email,
       });
     } catch (error) {
       console.error("Error logging in:", error);
@@ -135,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         id: user.id,
         username: user.username,
-        city: user.city,
+        email: user.email,
       });
     } catch (error) {
       console.error("Error fetching user:", error);

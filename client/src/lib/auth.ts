@@ -3,7 +3,7 @@ import { apiRequest } from "./queryClient";
 export interface User {
   id: string;
   username: string;
-  city?: string | null;
+  email?: string | null;
 }
 
 let currentUser: User | null = null;
@@ -26,11 +26,11 @@ export async function login(username: string, password: string): Promise<User> {
   return user;
 }
 
-export async function register(username: string, password: string, city?: string): Promise<User> {
+export async function register(username: string, password: string, email?: string): Promise<User> {
   const response = await fetch("/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password, city }),
+    body: JSON.stringify({ username, password, email }),
     credentials: "include",
   });
 

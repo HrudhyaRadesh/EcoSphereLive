@@ -5,8 +5,11 @@ import EcoTrackCard from "@/components/EcoTrackCard";
 import EcoChart from "@/components/EcoChart";
 import StatsCard from "@/components/StatsCard";
 import AuthNavbar from "@/components/AuthNavbar";
-import { Car, UtensilsCrossed, Zap, Droplets, TrendingDown, Calendar, Leaf } from "lucide-react";
+import { Car, UtensilsCrossed, Zap, Droplets, TrendingDown, Calendar, Leaf, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
+import type { UserMetrics } from "@shared/schema";
 
 export default function EcoTrackPage() {
   const { toast } = useToast();
@@ -16,16 +19,77 @@ export default function EcoTrackPage() {
     electricity: 0,
     water: 0,
   });
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch user metrics
+  const { data: userMetrics, isLoading: metricsLoading } = useQuery<UserMetrics & { rank?: number }>({
+    queryKey: ['/api/user/metrics'],
+  });
 
   const totalCarbon = Object.values(carbonData).reduce((sum, val) => sum + val, 0);
 
-  const handleSaveData = () => {
-    localStorage.setItem('carbonData', JSON.stringify(carbonData));
-    localStorage.setItem('carbonDataDate', new Date().toISOString());
-    toast({
-      title: "Data Saved!",
-      description: `Your carbon footprint of ${totalCarbon.toFixed(1)} kg has been saved.`,
-    });
+  const handleSaveData = async () => {
+    if (totalCarbon === 0) {
+      toast({
+        title: "No data to save",
+        description: "Please enter some data before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Create a single aggregated activity with breakdown in metadata
+      const response = await apiRequest("POST", "/api/activities", {
+        activityType: "Carbon Tracking",
+        co2Impact: totalCarbon,
+        pointsEarned: Math.round(totalCarbon * 10), // 10 points per kg CO2 tracked
+        metadata: JSON.stringify({
+          source: 'eco-track',
+          breakdown: {
+            travel: carbonData.travel,
+            diet: carbonData.diet,
+            electricity: carbonData.electricity,
+            water: carbonData.water,
+          }
+        }),
+      });
+
+      const result = await response.json();
+
+      // Update the query data with the returned metrics instead of refetching
+      if (result.metrics) {
+        queryClient.setQueryData(['/api/user/metrics'], result.metrics);
+      }
+
+      // Invalidate other queries to refresh related data
+      await queryClient.invalidateQueries({ queryKey: ['/api/user/activities'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/leaderboard'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/global-stats'] });
+
+      toast({
+        title: "Data Saved!",
+        description: `Your carbon footprint of ${totalCarbon.toFixed(1)} kg has been saved and your metrics have been updated.`,
+      });
+
+      // Reset the form
+      setCarbonData({
+        travel: 0,
+        diet: 0,
+        electricity: 0,
+        water: 0,
+      });
+    } catch (error: any) {
+      console.error("Error saving data:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -43,28 +107,31 @@ export default function EcoTrackPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatsCard 
             icon={TrendingDown}
-            title="Total Carbon"
-            value={`${totalCarbon.toFixed(1)} kg`}
-            change="Updated just now"
-          />
-          <StatsCard 
-            icon={Calendar}
-            title="This Month"
-            value={`${(totalCarbon * 30).toFixed(0)} kg`}
-            change="-8% from last month"
-            trend="down"
+            title="Total Carbon Saved"
+            value={metricsLoading ? "..." : `${(userMetrics?.co2Saved || 0).toFixed(1)} kg`}
+            change="Lifetime total"
+            data-testid="stat-co2-saved"
           />
           <StatsCard 
             icon={Leaf}
-            title="Trees Needed"
-            value={Math.ceil(totalCarbon / 21)}
-            change="To offset your footprint"
+            title="Green Points"
+            value={metricsLoading ? "..." : (userMetrics?.greenPoints || 0)}
+            change={`Level ${userMetrics?.level || 1}`}
+            data-testid="stat-green-points"
+          />
+          <StatsCard 
+            icon={Calendar}
+            title="Days Active"
+            value={metricsLoading ? "..." : (userMetrics?.daysActive || 0)}
+            change="Keep tracking!"
+            data-testid="stat-days-active"
           />
           <StatsCard 
             icon={TrendingDown}
-            title="Eco Score"
-            value={Math.max(0, 100 - Math.floor(totalCarbon / 10))}
-            change={totalCarbon < 100 ? "Excellent!" : "Can improve"}
+            title="Global Rank"
+            value={metricsLoading ? "..." : `#${userMetrics?.rank || '-'}`}
+            change="Your position"
+            data-testid="stat-rank"
           />
         </div>
 
@@ -188,8 +255,16 @@ export default function EcoTrackPage() {
             onClick={handleSaveData}
             data-testid="button-save-data"
             className="text-lg px-12"
+            disabled={isSaving || totalCarbon === 0}
           >
-            Save My Data
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              "Save My Data"
+            )}
           </Button>
         </div>
       </div>

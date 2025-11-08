@@ -31,18 +31,26 @@ interface EcoChartProps {
 }
 
 export default function EcoChart({ type, title, data }: EcoChartProps) {
+  // Map category names to specific colors
+  const getCategoryColor = (label: string): string => {
+    const colorMap: Record<string, string> = {
+      'Travel': 'rgb(59, 130, 246)',        // Blue
+      'Diet': 'rgb(34, 197, 94)',           // Green
+      'Electricity': 'rgb(251, 191, 36)',   // Yellow/Amber
+      'Water': 'rgb(14, 165, 233)',         // Cyan/Light Blue
+    };
+    return colorMap[label] || "hsl(var(--chart-1))";
+  };
+
+  // Generate background colors based on labels
+  const backgroundColor = data.labels.map(label => getCategoryColor(label));
+
   const chartData = {
     labels: data.labels,
     datasets: [
       {
         data: data.values,
-        backgroundColor: [
-          "hsl(var(--chart-1))",
-          "hsl(var(--chart-2))",
-          "hsl(var(--chart-3))",
-          "hsl(var(--chart-4))",
-          "hsl(var(--chart-5))",
-        ],
+        backgroundColor: backgroundColor,
         borderWidth: 0,
       },
     ],

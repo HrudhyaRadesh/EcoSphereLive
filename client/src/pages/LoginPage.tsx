@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Leaf, Lock, User, ArrowLeft, MapPin } from "lucide-react";
+import { Leaf, Lock, User, ArrowLeft, Mail } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { login, register } from "@/lib/auth";
@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [city, setCity] = useState("");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +29,7 @@ export default function LoginPage() {
           description: "Successfully logged in to EcoSphere AI.",
         });
       } else {
-        await register(username, password, city || undefined);
+        await register(username, password, email || undefined);
         toast({
           title: "Account created!",
           description: "Welcome to EcoSphere AI. Start your eco journey now!",
@@ -99,16 +99,17 @@ export default function LoginPage() {
 
                 {!isLogin && (
                   <div className="space-y-2">
-                    <Label htmlFor="city">City (optional)</Label>
+                    <Label htmlFor="email">Email (optional)</Label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
-                        id="city"
-                        placeholder="Enter your city"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
-                        data-testid="input-city"
+                        data-testid="input-email"
                       />
                     </div>
                   </div>
