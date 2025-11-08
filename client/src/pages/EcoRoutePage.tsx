@@ -64,20 +64,13 @@ export default function EcoRoutePage() {
       const destination = await geocodeAddress(endLocation);
 
       // Call backend API to calculate route
-      const response = await apiRequest("/api/routes/calculate", {
-        method: "POST",
-        body: JSON.stringify({
-          origin,
-          destination,
-          vehicleType,
-        }),
+      const response = await apiRequest("POST", "/api/routes/calculate", {
+        origin,
+        destination,
+        vehicleType,
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to calculate route");
-      }
 
       setRouteData(data.route);
       setMapPoints({
