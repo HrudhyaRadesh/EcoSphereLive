@@ -3,55 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import EcoMap from "@/components/EcoMap";
 import AuthNavbar from "@/components/AuthNavbar";
-import { MapPin, Navigation, TrendingDown, Award, Leaf, Loader2 } from "lucide-react";
+import { Navigation, Loader2, Footprints, Bike, Bus, Car, Leaf } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+type RouteComparison = {
+  mode: string;
+  icon: any;
+  duration: number;
+  co2Emissions: number;
+  ecoScore: number;
+  color: string;
+};
+
 export default function EcoRoutePage() {
-  const [startLocation, setStartLocation] = useState("");
-  const [endLocation, setEndLocation] = useState("");
-  const [vehicleType, setVehicleType] = useState("car");
+  const [distance, setDistance] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [routeData, setRouteData] = useState<{
-    distance: number;
-    duration: number;
-    co2Emissions: number;
-    ecoScore: number;
-    vehicleType: string;
-  } | null>(null);
-  const [mapPoints, setMapPoints] = useState<{
-    start?: [number, number];
-    end?: [number, number];
-    geometry?: any;
-  }>({});
+  const [routes, setRoutes] = useState<RouteComparison[]>([]);
   const { toast } = useToast();
 
-  // Geocode an address to lat/lng using Nominatim (OpenStreetMap)
-  const geocodeAddress = async (address: string) => {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
-    );
-    const data = await response.json();
-    
-    if (data.length === 0) {
-      throw new Error(`Location not found: ${address}`);
-    }
-    
-    return {
-      lat: parseFloat(data[0].lat),
-      lng: parseFloat(data[0].lon),
-    };
-  };
-
-  const calculateRoute = async () => {
-    if (!startLocation || !endLocation) {
+  const calculateRoutes = async () => {
+    if (!distance || parseFloat(distance) <= 0) {
       toast({
-        title: "Missing information",
-        description: "Please enter both start and end locations",
+        title: "Invalid distance",
+        description: "Please enter a valid distance in kilometers",
         variant: "destructive",
       });
       return;
@@ -59,37 +36,25 @@ export default function EcoRoutePage() {
 
     setIsLoading(true);
     try {
-      // Geocode both addresses
-      const origin = await geocodeAddress(startLocation);
-      const destination = await geocodeAddress(endLocation);
-
-      // Call backend API to calculate route
-      const response = await apiRequest("POST", "/api/routes/calculate", {
-        origin,
-        destination,
-        vehicleType,
+      const distanceKm = parseFloat(distance);
+      
+      // Call backend API to calculate all routes
+      const response = await apiRequest("POST", "/api/routes/compare", {
+        distance: distanceKm,
       });
 
       const data = await response.json();
-      
-      console.log("Route calculation response:", data.route);
-
-      setRouteData(data.route);
-      setMapPoints({
-        start: [origin.lat, origin.lng],
-        end: [destination.lat, destination.lng],
-        geometry: data.route.geometry,
-      });
+      setRoutes(data.routes);
 
       toast({
-        title: "Route calculated!",
-        description: `Found an eco-friendly route of ${data.route.distance.toFixed(1)} km`,
+        title: "Routes calculated!",
+        description: `Compared ${data.routes.length} transport modes for ${distanceKm} km`,
       });
     } catch (error: any) {
-      console.error("Error calculating route:", error);
+      console.error("Error calculating routes:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to calculate route",
+        description: error.message || "Failed to calculate routes",
         variant: "destructive",
       });
     } finally {
@@ -97,77 +62,79 @@ export default function EcoRoutePage() {
     }
   };
 
+  const getIconComponent = (mode: string) => {
+    switch (mode.toLowerCase()) {
+      case 'walk':
+        return Footprints;
+      case 'bike':
+        return Bike;
+      case 'bus':
+        return Bus;
+      case 'car':
+        return Car;
+      default:
+        return Navigation;
+    }
+  };
+
+  const getIconColor = (mode: string) => {
+    switch (mode.toLowerCase()) {
+      case 'walk':
+        return 'bg-green-100 text-green-600';
+      case 'bike':
+        return 'bg-green-100 text-green-600';
+      case 'bus':
+        return 'bg-teal-100 text-teal-600';
+      case 'car':
+        return 'bg-orange-100 text-orange-600';
+      default:
+        return 'bg-gray-100 text-gray-600';
+    }
+  };
+
+  const carEmissions = routes.find(r => r.mode.toLowerCase() === 'car')?.co2Emissions || 0;
+  const bestEmissions = Math.min(...routes.map(r => r.co2Emissions));
+  const savings = carEmissions - bestEmissions;
+
   return (
     <div className="min-h-screen bg-background">
-      <AuthNavbar title="Smart Eco Routes" icon={Navigation} />
+      <AuthNavbar title="Smart Eco Route Finder" icon={Navigation} />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Find Your Eco-Friendly Route</h1>
+          <h1 className="text-4xl font-bold mb-2">Smart Eco Route Finder</h1>
           <p className="text-muted-foreground text-lg">
-            Discover the most sustainable way to travel with live CO₂ calculations
+            Compare transport modes and find the most eco-friendly route
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <EcoMap 
-              startPoint={mapPoints.start}
-              endPoint={mapPoints.end}
-              routeGeometry={mapPoints.geometry}
-            />
-          </div>
-
-          <div className="space-y-6">
+          {/* Route Details Input */}
+          <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Route Planner
-                </CardTitle>
+                <CardTitle className="text-xl">Route Details</CardTitle>
+                <p className="text-sm text-muted-foreground">Enter your journey information</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="start">Start Location</Label>
+                  <Label htmlFor="distance">Distance (km)</Label>
                   <Input 
-                    id="start"
-                    placeholder="e.g., New York, NY or Times Square"
-                    value={startLocation}
-                    onChange={(e) => setStartLocation(e.target.value)}
-                    data-testid="input-start-location"
+                    id="distance"
+                    type="number"
+                    placeholder="50"
+                    value={distance}
+                    onChange={(e) => setDistance(e.target.value)}
+                    data-testid="input-distance"
                     disabled={isLoading}
+                    min="0"
+                    step="0.1"
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="end">End Location</Label>
-                  <Input 
-                    id="end"
-                    placeholder="e.g., Brooklyn, NY or Central Park"
-                    value={endLocation}
-                    onChange={(e) => setEndLocation(e.target.value)}
-                    data-testid="input-end-location"
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="vehicle">Vehicle Type</Label>
-                  <Select value={vehicleType} onValueChange={setVehicleType} disabled={isLoading}>
-                    <SelectTrigger id="vehicle" data-testid="select-vehicle-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="car">Car (Gasoline)</SelectItem>
-                      <SelectItem value="electric">Electric Vehicle</SelectItem>
-                      <SelectItem value="bus">Public Bus</SelectItem>
-                      <SelectItem value="bike">Bicycle</SelectItem>
-                      <SelectItem value="walk">Walking</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
                 <Button 
                   className="w-full"
-                  onClick={calculateRoute}
-                  data-testid="button-calculate-route"
+                  onClick={calculateRoutes}
+                  data-testid="button-calculate-routes"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -176,87 +143,89 @@ export default function EcoRoutePage() {
                       Calculating...
                     </>
                   ) : (
-                    "Calculate Eco Route"
+                    "Calculate Routes"
                   )}
                 </Button>
               </CardContent>
             </Card>
+          </div>
 
-            {routeData && (
-              <Card className="animate-fade-in-up">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Leaf className="h-5 w-5 text-primary" />
-                    Route Results
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Distance</div>
-                    <div className="text-2xl font-bold">{routeData.distance.toFixed(1)} km</div>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                      <TrendingDown className="h-3 w-3" />
-                      CO₂ Emissions
-                    </div>
-                    <div className="text-2xl font-bold text-primary">
-                      {routeData.co2Emissions.toFixed(2)} kg
-                    </div>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-2 flex items-center gap-1">
-                      <Award className="h-3 w-3" />
-                      Eco Score
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-3xl font-bold text-primary">{routeData.ecoScore}</div>
-                      <Badge 
-                        variant={routeData.ecoScore >= 80 ? "default" : "secondary"}
-                        className="text-sm"
-                      >
-                        {routeData.ecoScore >= 80 ? "Excellent" : "Good"}
-                      </Badge>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden mt-2">
-                      <div 
-                        className="h-full bg-primary transition-all duration-500"
-                        style={{ width: `${routeData.ecoScore}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="h-px bg-border" />
-                  <div className="text-sm space-y-2">
-                    <div className="font-medium">Route Details</div>
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Mode</span>
-                      <span className="text-foreground capitalize">{routeData.vehicleType}</span>
-                    </div>
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Estimated Time</span>
-                      <span className="text-foreground">{Math.ceil(routeData.duration)} min</span>
-                    </div>
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Green Points</span>
-                      <span className="text-primary font-medium">+{Math.ceil((100 - routeData.co2Emissions) * 10)}</span>
-                    </div>
-                  </div>
+          {/* Route Comparison Cards */}
+          <div className="lg:col-span-2 space-y-4">
+            {routes.length > 0 ? (
+              <>
+                {routes.map((route, index) => {
+                  const IconComponent = getIconComponent(route.mode);
+                  const iconColor = getIconColor(route.mode);
+                  
+                  return (
+                    <Card key={index} className="hover-elevate" data-testid={`route-card-${route.mode.toLowerCase()}`}>
+                      <CardContent className="flex items-center justify-between p-6">
+                        <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-lg ${iconColor}`}>
+                            <IconComponent className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-semibold capitalize" data-testid={`mode-${route.mode.toLowerCase()}`}>
+                              {route.mode}
+                            </h3>
+                            <p className="text-sm text-muted-foreground" data-testid={`duration-${route.mode.toLowerCase()}`}>
+                              {Math.round(route.duration)} min
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <div className="text-right">
+                            <p className="text-3xl font-bold" data-testid={`co2-${route.mode.toLowerCase()}`}>
+                              {route.co2Emissions.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">kg CO₂</p>
+                          </div>
+                          <Badge 
+                            variant={route.ecoScore >= 80 ? "default" : route.ecoScore >= 50 ? "secondary" : "outline"}
+                            className="text-sm px-3 py-1"
+                            data-testid={`score-${route.mode.toLowerCase()}`}
+                          >
+                            <Leaf className="h-3 w-3 mr-1" />
+                            {route.ecoScore}
+                            <span className="ml-1 text-xs">Eco Score</span>
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+
+                {/* Environmental Impact Card */}
+                {savings > 0 && (
+                  <Card className="bg-primary text-primary-foreground" data-testid="environmental-impact">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-lg bg-primary-foreground/20">
+                          <Leaf className="h-8 w-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold mb-2">Environmental Impact</h3>
+                          <p className="text-primary-foreground/90">
+                            Walking or biking saves <span className="font-bold">{savings.toFixed(2)} kg CO₂</span> compared to driving
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                  <Navigation className="h-16 w-16 text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Ready to Compare Routes</h3>
+                  <p className="text-muted-foreground">
+                    Enter a distance and click "Calculate Routes" to see eco-friendly options
+                  </p>
                 </CardContent>
               </Card>
             )}
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">💡 Eco Tips</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground space-y-2">
-                <p>• Choose public transit over personal vehicles when possible</p>
-                <p>• Walking and cycling are the most eco-friendly options</p>
-                <p>• Carpooling can reduce your carbon footprint by up to 50%</p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

@@ -262,6 +262,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Compare all transport modes for a given distance
+  app.post("/api/routes/compare", requireAuth, async (req, res) => {
+    try {
+      const { distance } = req.body;
+
+      if (!distance || distance <= 0) {
+        return res.status(400).json({ error: "Valid distance is required" });
+      }
+
+      const distanceKm = parseFloat(distance);
+
+      // Average speeds in km/h for each mode
+      const averageSpeeds: Record<string, number> = {
+        walk: 5,      // Walking speed
+        bike: 15,     // Cycling speed
+        bus: 30,      // Average bus speed with stops
+        car: 60,      // Average car speed in traffic
+      };
+
+      // CO2 emission factors in kg CO2 per km
+      const emissionFactors: Record<string, number> = {
+        walk: 0,         // Zero emissions
+        bike: 0,         // Zero emissions
+        bus: 0.089,      // Public bus per passenger
+        car: 0.192,      // Average car
+      };
+
+      // Calculate routes for all modes
+      const routes = Object.keys(averageSpeeds).map(mode => {
+        const durationMin = (distanceKm / averageSpeeds[mode]) * 60;
+        const co2Emissions = distanceKm * emissionFactors[mode];
+        
+        // Calculate eco-score (0-100, higher is better)
+        const maxEmissions = distanceKm * emissionFactors.car;
+        const ecoScore = maxEmissions > 0 
+          ? Math.round(((maxEmissions - co2Emissions) / maxEmissions) * 100) 
+          : 100;
+
+        return {
+          mode: mode.charAt(0).toUpperCase() + mode.slice(1),
+          duration: durationMin,
+          co2Emissions: co2Emissions,
+          ecoScore: ecoScore,
+        };
+      });
+
+      console.log(`Calculated ${routes.length} routes for ${distanceKm} km`);
+
+      res.json({ routes });
+    } catch (error) {
+      console.error("Error comparing routes:", error);
+      res.status(500).json({ error: "Failed to compare routes" });
+    }
+  });
+
   // Calculate eco-friendly route using OSRM (OpenStreetMap)
   app.post("/api/routes/calculate", requireAuth, async (req, res) => {
     try {
