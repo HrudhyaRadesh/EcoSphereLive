@@ -1,0 +1,61 @@
+Build a fully functional, live, and dynamic version of the EcoSphere AI web app using HTML, CSS, and JavaScript.
+
+Keep the same modern design, transitions, and structure as before, but make every page interactive and data-driven.
+
+Include the following:
+
+EcoTrack Dashboard
+
+Allow users to input live data for travel, diet, electricity, and water usage.
+
+Calculate the carbon footprint dynamically in real time using JavaScript formulas.
+
+Display results through interactive charts and animated visualizations using Chart.js.
+
+Add a Save My Data button that stores entries in localStorage and in Replit DB for persistence.
+
+Smart Eco Route Finder
+
+Integrate a live interactive map using Leaflet.js or Mapbox.
+
+Let users choose start and end points and calculate the most eco-friendly routes.
+
+Display live distance, estimated CO₂ saved, and an Eco Score that updates dynamically.
+
+Generative Green Designer
+
+Let users describe their budget, lifestyle, and climate preferences.
+
+Use Replit AI or OpenAI API to generate sustainable home layout or eco-product suggestions.
+
+Display generated results dynamically on the page.
+
+Urban Optimization Dashboard
+
+Aggregate anonymous user data from the EcoTrack section in real time.
+
+Show live charts and city-level insights based on saved user data.
+
+Gamification Zone
+
+Calculate Green Points dynamically based on user actions such as saving data or choosing sustainable routes.
+
+Unlock badges like Carbon Saver and Green Hero when thresholds are reached.
+
+Show a live leaderboard that updates in real time using Replit DB.
+
+Login and Signup Page
+
+Build a functional login and signup system using localStorage for session management and Replit DB for storing user credentials securely.
+
+After login, load user-specific data dynamically on the dashboard.
+
+UI Consistency and Design
+
+Apply Home page animations, transitions, and CSS effects across all other pages.
+
+Keep Back to Home buttons consistently styled and aligned.
+
+Use smooth spacing, subtle color gradients, and modern typography for a professional feel.
+
+Ensure the entire website is live, interactive, and dynamic, with no hardcoded zeros or placeholders. Every page should update automatically as users interact with it.

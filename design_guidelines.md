@@ -1,109 +1,154 @@
-# EcoSphere Live - Design Guidelines
+# EcoSphere AI Design Guidelines
 
 ## Design Approach
-**Hybrid Reference-Based:** Drawing inspiration from environmental apps like Ecosia and Forest, combined with Linear's modern aesthetics and Notion's clean data presentation. Focus on making environmental impact tangible and inspiring through compelling visuals and clear data hierarchy.
+**Reference-Based with System Elements**: Drawing from Linear's clean dashboards, Notion's data presentation, and modern sustainability platforms. Emphasis on clarity, interactivity, and environmental consciousness without green clichés.
 
 ## Core Design Principles
-1. **Inspire Through Visuals:** Connect users emotionally to their environmental impact
-2. **Data Clarity:** Present metrics in digestible, meaningful formats
-3. **Celebrate Progress:** Highlight achievements and personal contributions
-4. **Modern Minimalism:** Clean interface that emphasizes content over decoration
+1. **Data Clarity First**: Information hierarchy prioritizes actionable insights
+2. **Eco-Modern Aesthetic**: Contemporary tech feel with subtle sustainability cues
+3. **Progressive Disclosure**: Complex features revealed through intuitive interactions
+4. **Gamification Integration**: Points, badges, and leaderboards feel natural, not forced
 
-## Typography
-- **Primary Font:** Inter (Google Fonts) - excellent for data display and readability
-- **Accent Font:** Poppins (Google Fonts) - for headlines and impact statements
-- **Hierarchy:**
-  - Hero/Impact Numbers: Poppins Bold, 3xl-5xl (48-64px)
-  - Section Headers: Poppins SemiBold, xl-2xl (24-32px)
-  - Metric Labels: Inter Medium, sm-base (14-16px)
-  - Body Text: Inter Regular, sm-base (14-16px)
-  - Data Values: Inter SemiBold, lg-xl (18-24px)
+## Typography System
+- **Primary Font**: Inter or DM Sans (Google Fonts) - clean, modern, excellent for data
+- **Display Font**: Space Grotesk for hero headings and impactful statements
+- **Hierarchy**:
+  - Hero Headlines: text-5xl to text-7xl, font-bold
+  - Section Headers: text-3xl to text-4xl, font-semibold
+  - Card Titles: text-xl, font-semibold
+  - Body Text: text-base, regular
+  - Data Labels: text-sm, medium
+  - Micro-copy: text-xs
 
 ## Layout System
-**Spacing Primitives:** Tailwind units of 2, 4, 6, 8, and 12 for consistent rhythm
-- Component padding: p-6 to p-8
-- Section spacing: mb-8 to mb-12
-- Card gaps: gap-4 to gap-6
-- Container max-width: max-w-7xl with px-4 to px-8
+**Spacing Primitives**: Consistent use of Tailwind units 2, 4, 8, 12, 16, 24
+- Component padding: p-4, p-6, p-8
+- Section spacing: py-12, py-16, py-24
+- Grid gaps: gap-4, gap-6, gap-8
+- Container: max-w-7xl with px-4 responsive padding
+
+## Page-Specific Layouts
+
+### Home Page
+- **Hero Section**: Full-width with gradient overlay (70vh)
+  - Large hero image showing sustainable cityscape/nature
+  - Centered headline + subtitle + dual CTAs (Get Started, Learn More)
+  - Floating stats cards (Users, CO₂ Saved, Cities) with backdrop blur
+- **Features Grid**: 3-column layout (grid-cols-1 md:grid-cols-3) showcasing core features with icons
+- **Impact Section**: 2-column split with image + stats visualization
+- **How It Works**: Horizontal timeline/step cards
+- **CTA Section**: Centered with gradient background
+
+### EcoTrack Dashboard
+- **Layout**: Sidebar navigation (hidden on mobile) + main content area
+- **Input Section**: 2x2 grid of category cards (Travel, Diet, Electricity, Water)
+  - Each card: icon, input fields, real-time mini-preview
+- **Results Panel**: Prominent total carbon display with radial progress indicator
+- **Charts Section**: 2-column grid showing pie chart (breakdown) + line chart (trends)
+- **Action Bar**: Sticky bottom with Save Data button (prominent, gradient background)
+
+### Smart Eco Route Finder
+- **Map-First Layout**: Full-height interactive map (min-h-screen minus header)
+- **Control Panel**: Floating card overlay (top-left) with:
+  - Start/End point inputs with autocomplete
+  - Route options (transit modes)
+  - Calculate button
+- **Results Card**: Sliding panel (right side) displaying:
+  - Route visualization on map
+  - Distance, time, CO₂ savings in card format
+  - Eco Score badge (large, animated)
+  - Alternative routes comparison table
+
+### Generative Green Designer
+- **Input Form**: Centered, stepped form (max-w-2xl)
+  - Budget slider with visual indicators
+  - Lifestyle checkboxes (grid layout)
+  - Climate dropdown with icons
+  - Generate button (prominent)
+- **Results Display**: Full-width masonry grid or card layout
+  - AI-generated suggestions with images
+  - Each card: product/layout image, description, sustainability score
+  - Save/Share actions per card
+
+### Urban Optimization Dashboard
+- **City Selector**: Dropdown with search (sticky header)
+- **Metrics Grid**: 4-column stats (Total Users, Avg Carbon, Top Category, Reduction %)
+- **Charts Layout**: 2-column grid
+  - City comparison bar chart
+  - Category breakdown donut chart
+  - Time-series line chart (full-width below)
+- **Insights Cards**: 3-column grid with AI-generated recommendations
+
+### Gamification Zone
+- **Profile Header**: User stats banner (points, level, rank)
+- **Badges Section**: Grid of earned/locked badges with hover tooltips
+- **Leaderboard**: Table with rank, avatar, username, points
+  - Highlight current user row
+  - Animated position changes
+- **Challenges Card**: Available eco-challenges with progress bars
+
+### Login/Signup
+- **Split Layout**: 50/50 on desktop (form left, visual right)
+- **Form Panel**: Centered form (max-w-md) with:
+  - Logo at top
+  - Input fields with icon prefixes
+  - Social login buttons (Google, GitHub)
+  - Toggle between Login/Signup
+- **Visual Panel**: Hero image with gradient overlay + value proposition text
 
 ## Component Library
 
-### Dashboard Header
-- Clean navigation with logo, user profile, and points display
-- Sticky positioning for persistent access to key metrics
-- Quick stats bar showing global impact counters
+### Cards
+- Standard: rounded-xl, shadow-md, backdrop blur for overlays
+- Dashboard: rounded-lg, border, subtle shadow
+- Hover: transform scale-105, shadow-lg transition
 
-### Hero Section
-- Full-width impactful environmental imagery (forest canopy, clean ocean, renewable energy)
-- Overlay with blurred background buttons for primary actions
-- Large display of user's total CO2 saved with celebratory visual treatment
-- Tagline: "Your Impact on the Planet" or similar inspiring message
+### Buttons
+- Primary: Gradient background, rounded-lg, px-6 py-3
+- Secondary: Outline, transparent background
+- Icon buttons: Square, rounded-lg, icon-only
+- Floating action: Fixed position, rounded-full, shadow-2xl
 
-### Metrics Dashboard Cards
-- Grid layout: 3 columns on desktop (lg:grid-cols-3), 2 on tablet (md:grid-cols-2), 1 on mobile
-- Each card features:
-  - Large numerical value with animated counter
-  - Icon representing the metric (use Heroicons)
-  - Label and trend indicator (↑/↓)
-  - Subtle background gradient or pattern
-- Card variants for: Active Users, CO2 Saved, Cities Worldwide, Green Points
+### Forms
+- Inputs: rounded-lg, border, focus ring
+- Labels: text-sm, font-medium, mb-2
+- Groups: Consistent spacing (space-y-4)
 
-### Personal Impact Section
-- "Your Impact" showcase with visual progress indicators
-- Monthly comparison chart showing "This Month" vs previous months
-- Achievement badges for milestones
-- Activity timeline with recent eco-friendly actions
+### Data Visualization
+- Chart containers: rounded-lg cards with p-6
+- Use Chart.js with custom color palette
+- Interactive tooltips and legends
+- Responsive sizing
 
-### Activity Feed
-- Card-based list of user actions with timestamps
-- Each activity shows: action type, CO2 saved, points earned, timestamp
-- Categorized with color-coded icons
+### Navigation
+- Top Nav: Sticky, backdrop blur, shadow-sm
+- Sidebar: Fixed, collapsible on mobile
+- Breadcrumbs: text-sm with chevron separators
 
-### Global Impact Visualization
-- Real-time counter for aggregate metrics
-- Animated globe or map showing cities participating
-- Community achievement celebrations
-
-### Footer
-- Newsletter signup for eco-tips
-- Social links to community platforms
-- Quick navigation to app sections
-- Trust indicators: total community impact stats
-
-## Icons
-**Library:** Heroicons (solid and outline variants)
-- Environmental icons: leaf, globe, lightning-bolt, sun, water
-- Action icons: plus-circle, check-circle, sparkles
-- Navigation: home, chart-bar, user, cog
+### Badges & Tags
+- Rounded-full, px-3 py-1, text-xs
+- Different variants for achievement types
 
 ## Animations
-**Minimal and purposeful:**
-- Number counters: Animated count-up for metrics when entering viewport
-- Achievement pop-ups: Subtle scale and fade-in when earning points
-- Card hover: Gentle lift (translate-y) and shadow enhancement
-- No scroll-based parallax or complex transitions
+- **Page Transitions**: Subtle fade-in on load (300ms)
+- **Stat Counters**: Animate numbers counting up
+- **Chart Reveals**: Stagger chart animations on scroll-into-view
+- **Badge Unlocks**: Celebratory scale + glow animation
+- **Route Drawing**: Animated path tracing on map
+- **Hover States**: Scale 105%, shadow enhancement (200ms ease)
+- **Loading States**: Skeleton screens for data fetching
 
 ## Images
-### Required Images:
-1. **Hero Background:** High-quality environmental scene (forest canopy with sunlight, pristine ocean, or wind turbines at sunset) - full-width, 60-80vh
-2. **Activity Icons:** Use placeholder illustrations for different eco-activities (recycling, biking, planting trees) - 64x64px to 128x128px
-3. **Achievement Badges:** Simple illustrated badges for milestones - 96x96px
-
-### Image Placement:
-- Hero section: Full-width background with overlay
-- Activity cards: Small icon representations
-- No images needed in metric cards (keep data-focused)
+- **Home Hero**: Large sustainable city or nature scene (full-width, 70vh)
+- **Feature Icons**: Use Heroicons for consistency
+- **Dashboard**: No large images, focus on data viz
+- **Route Finder**: Map is primary visual (Leaflet.js)
+- **Green Designer**: Product/layout suggestion thumbnails
+- **Login Visual**: Inspiring sustainability imagery
 
 ## Accessibility
-- Maintain WCAG AA contrast ratios throughout
-- All interactive elements have clear focus states with ring-2 ring-offset-2
-- Metric cards include aria-labels for screen readers
-- Form inputs have visible labels and error states
-- Keyboard navigation fully supported
-
-## Key UX Patterns
-- **Data First:** Metrics immediately visible without scrolling
-- **Progressive Disclosure:** Detailed breakdowns accessible on-demand
-- **Instant Feedback:** Real-time updates when actions are logged
-- **Gamification:** Clear point system and achievement tracking
-- **Social Proof:** Community stats to inspire participation
+- All interactive elements keyboard accessible
+- Form inputs with proper labels and ARIA attributes
+- Sufficient contrast ratios throughout
+- Focus indicators on all focusable elements
+- Chart data tables as fallback

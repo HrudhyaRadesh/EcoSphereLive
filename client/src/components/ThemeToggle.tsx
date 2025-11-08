@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -10,9 +10,6 @@ export default function ThemeToggle() {
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
     }
   }, []);
 
@@ -31,9 +28,9 @@ export default function ThemeToggle() {
       data-testid="button-theme-toggle"
     >
       {theme === "light" ? (
-        <Moon className="w-5 h-5" />
+        <Moon className="h-5 w-5" />
       ) : (
-        <Sun className="w-5 h-5" />
+        <Sun className="h-5 w-5" />
       )}
     </Button>
   );

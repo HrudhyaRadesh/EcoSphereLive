@@ -1,10 +1,10 @@
-import Hero from '../Hero';
+import Hero from '../Hero'
 
 export default function HeroExample() {
   return (
     <Hero 
-      totalCO2Saved={34.7}
-      onAddActivity={() => console.log('Add activity clicked')}
+      onGetStarted={() => console.log('Get Started clicked')}
+      onLearnMore={() => console.log('Learn More clicked')}
     />
-  );
+  )
 }
