@@ -124,46 +124,6 @@ export default function GamificationPage() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Active Challenges</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="font-medium">Weekly Carbon Goal</span>
-                    <span className="text-muted-foreground">3/7 days</span>
-                  </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: "43%" }} />
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">+100 pts on completion</div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="font-medium">Eco Route Master</span>
-                    <span className="text-muted-foreground">8/10 routes</span>
-                  </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: "80%" }} />
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">+250 pts on completion</div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="font-medium">Green Designer</span>
-                    <span className="text-muted-foreground">1/3 designs</span>
-                  </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: "33%" }} />
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">+150 pts on completion</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
                 <CardTitle>Earn More Points</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
