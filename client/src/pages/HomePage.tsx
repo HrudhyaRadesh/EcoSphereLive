@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Hero from "@/components/Hero";
 import FeatureCard from "@/components/FeatureCard";
-import { BarChart3, Map, Sparkles, Building2, Trophy, LogIn } from "lucide-react";
+import { BarChart3, Map, Sparkles, Trophy, LogIn } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Link } from "wouter";
@@ -71,12 +71,6 @@ export default function HomePage() {
               title="AI Green Designer"
               description="Get AI-powered recommendations for sustainable home layouts and eco-friendly products"
               onClick={() => window.location.href = '/designer'}
-            />
-            <FeatureCard 
-              icon={Building2}
-              title="Urban Insights"
-              description="Explore city-level sustainability data and contribute to community environmental goals"
-              onClick={() => window.location.href = '/urban'}
             />
             <FeatureCard 
               icon={Trophy}

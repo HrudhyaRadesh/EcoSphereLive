@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AuthNavbar from "@/components/AuthNavbar";
-import { BarChart3, Map, Sparkles, Building2, Trophy, TrendingDown } from "lucide-react";
+import { BarChart3, Map, Sparkles, Trophy, TrendingDown } from "lucide-react";
 import { Link } from "wouter";
 import { getCurrentUser } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -46,14 +46,6 @@ export default function DashboardPage() {
       description: "Get AI-powered recommendations for sustainable home layouts and eco-friendly products",
       color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
       testId: "card-module-designer"
-    },
-    {
-      href: "/urban",
-      icon: Building2,
-      title: "Urban Insights (India)",
-      description: "Explore city-level sustainability data for Indian cities and contribute to community goals",
-      color: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-      testId: "card-module-urban"
     },
     {
       href: "/gamification",

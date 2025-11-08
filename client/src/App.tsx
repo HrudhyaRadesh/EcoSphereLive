@@ -8,7 +8,6 @@ import HomePage from "@/pages/HomePage";
 import EcoTrackPage from "@/pages/EcoTrackPage";
 import EcoRoutePage from "@/pages/EcoRoutePage";
 import GreenDesignerPage from "@/pages/GreenDesignerPage";
-import UrbanDashboardPage from "@/pages/UrbanDashboardPage";
 import GamificationPage from "@/pages/GamificationPage";
 import LoginPage from "@/pages/LoginPage";
 import DashboardPage from "@/pages/DashboardPage";
@@ -37,11 +36,6 @@ function Router() {
       <Route path="/designer">
         <ProtectedRoute>
           <GreenDesignerPage />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/urban">
-        <ProtectedRoute>
-          <UrbanDashboardPage />
         </ProtectedRoute>
       </Route>
       <Route path="/gamification">
