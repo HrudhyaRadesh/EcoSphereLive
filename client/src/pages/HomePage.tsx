@@ -5,8 +5,18 @@ import { BarChart3, Map, Sparkles, Building2, Trophy, LogIn } from "lucide-react
 import { Card, CardContent } from "@/components/ui/card";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+
+interface GlobalStats {
+  totalUsers: number;
+  totalCo2Saved: number;
+  citiesCount: number;
+}
 
 export default function HomePage() {
+  const { data: globalStats } = useQuery<GlobalStats>({
+    queryKey: ["/api/global-stats"],
+  });
   return (
     <div className="min-h-screen">
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
@@ -127,8 +137,14 @@ export default function HomePage() {
               <CardContent className="p-0">
                 <div className="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                   <div className="text-center p-8">
-                    <div className="text-6xl font-bold text-primary mb-2">2.5M+</div>
-                    <div className="text-xl text-muted-foreground">Tons of CO₂ Saved</div>
+                    <div className="text-6xl font-bold text-primary mb-2" data-testid="text-global-co2">
+                      {globalStats 
+                        ? `${globalStats.totalCo2Saved >= 1000 
+                            ? `${(globalStats.totalCo2Saved / 1000).toFixed(1)}k` 
+                            : globalStats.totalCo2Saved.toFixed(1)} kg` 
+                        : "0 kg"}
+                    </div>
+                    <div className="text-xl text-muted-foreground">CO₂ Saved</div>
                     <div className="text-sm text-muted-foreground mt-2">by our community</div>
                   </div>
                 </div>
