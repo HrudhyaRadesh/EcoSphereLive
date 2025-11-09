@@ -1,0 +1,3 @@
+EcoSphere AI is an innovative, AI-powered sustainability platform designed to help individuals and communities understand, track, and reduce their environmental footprint. By combining artificial intelligence, real-time data analysis, and interactive insights, EcoSphere AI empowers users to make informed, eco-conscious decisions in their everyday lives.
+
+Our mission is to make sustainability accessible, actionable, and engaging for everyone. Whether you're managing household energy, tracking carbon emissions, or making greener lifestyle choices, EcoSphere AI provides personalized recommendations and predictive insights to guide you toward a more sustainable future.
